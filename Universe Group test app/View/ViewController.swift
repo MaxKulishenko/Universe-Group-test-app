@@ -51,7 +51,7 @@ extension ViewController {
         setupButtons()
         setupActionButtonsContainerView()
         setupWrapperView()
-        //  перше внизу стек вю
+
         guard let trashContainerView = trashContainerView else { return }
         
         view.addSubview(trashContainerView)
@@ -108,18 +108,16 @@ extension ViewController {
         trashViewCounter?.textAlignment = .center
         trashViewCounter?.textColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         trashViewCounter?.font = UIFont.systemFont(ofSize: 30, weight: .bold)
-        trashViewCounter?.contentCompressionResistancePriority(for: .horizontal)
     }
     
     private func setupTrashViewLabel() {
         trashViewLabel = UILabel()
         trashViewLabel?.lineBreakMode = .byWordWrapping
-        trashViewLabel?.numberOfLines = 2
+        trashViewLabel?.numberOfLines = 0
         trashViewLabel?.textColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         trashViewLabel?.text = "images in the trash"
         trashViewLabel?.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
         trashViewLabel?.translatesAutoresizingMaskIntoConstraints = false
-        trashViewLabel?.widthAnchor.constraint(equalToConstant: 10).isActive = true
     }
     
     private func setupTrashViewButton() {
@@ -144,19 +142,22 @@ extension ViewController {
         config.attributedTitle = .init(attributedTitle)
   
         trashViewButton?.configuration = config
+        trashViewButton?.translatesAutoresizingMaskIntoConstraints = false
     }
     
     private func setupTrashContainerView() {
         guard let trashViewCounter = trashViewCounter,
               let trashViewLabel = trashViewLabel,
               let trashViewButton = trashViewButton else { return }
-        
+
+        trashViewLabel.contentMode = .scaleToFill
         let containerView = UIStackView()
         containerView.backgroundColor = #colorLiteral(red: 0.1922, green: 0.2, blue: 0.3294, alpha: 1)
         containerView.layer.cornerRadius = 30
         containerView.axis = .horizontal
+        containerView.spacing = 10
         containerView.alignment = .fill
-        containerView.distribution = .fillProportionally
+        containerView.distribution = .fill
         containerView.addArrangedSubview(trashViewCounter)
         containerView.addArrangedSubview(trashViewLabel)
         containerView.addArrangedSubview(trashViewButton)
@@ -165,7 +166,8 @@ extension ViewController {
                                                    bottom: 20,
                                                    right: 20)
         containerView.isLayoutMarginsRelativeArrangement = true
-        
+        trashViewButton.widthAnchor.constraint(equalTo: containerView.widthAnchor , multiplier: 0.5).isActive = true
+
         trashContainerView = containerView
     }
     
