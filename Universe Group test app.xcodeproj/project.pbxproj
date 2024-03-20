@@ -340,6 +340,7 @@
 				DEVELOPMENT_TEAM = 367TJ4FJMF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Universe Group test app/Info.plist";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "My app uses photos for mutating blue frogs";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -351,7 +352,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "Universe-Group-test-app.Universe-Group-test-app";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Max.Universe-Group-test-app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -369,6 +370,7 @@
 				DEVELOPMENT_TEAM = 367TJ4FJMF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Universe Group test app/Info.plist";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "My app uses photos for mutating blue frogs";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -380,7 +382,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "Universe-Group-test-app.Universe-Group-test-app";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Max.Universe-Group-test-app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
