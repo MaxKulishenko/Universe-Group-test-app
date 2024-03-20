@@ -21,6 +21,8 @@ final class ViewController: UIViewController {
     
     private var presenter: PhotoPresenter?
     
+    private var counterValue: Int = 0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -35,6 +37,10 @@ final class ViewController: UIViewController {
 }
 
 extension ViewController: PhotoView {
+    func updateTrashCounter() {
+        trashViewCounter?.text = String(counterValue)
+    }
+    
     func display(photo: Photo) {
         currentImageView?.image = photo.image
     }
@@ -204,6 +210,9 @@ extension ViewController {
         movePhotoToTrashButton?.widthAnchor.constraint(equalToConstant: 60).isActive = true
         movePhotoToTrashButton?.heightAnchor.constraint(equalToConstant: 60).isActive = true
         
+        movePhotoToTrashButton?.addTarget(self, action: #selector(movePhotoToTrashPressed(_:)),
+                                      for: .touchUpInside)
+        
         showNextPhotoButton = UIButton()
         
         var config = UIButton.Configuration.gray()
@@ -255,5 +264,11 @@ extension ViewController {
 extension ViewController {
     @objc private func showNextPhotoPressed(_ sender: Any) {
         presenter?.fetchNextLatestPhoto()
+    }
+    
+    @objc private func movePhotoToTrashPressed(_ sender: Any) {
+      //  counterValue += 1
+        
+        presenter?.deletePhoto()
     }
 }
