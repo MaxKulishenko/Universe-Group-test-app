@@ -57,6 +57,7 @@ extension ViewController {
         setupButtons()
         setupActionButtonsContainerView()
         setupWrapperView()
+        setupImageView()
         
         guard let trashContainerView = trashContainerView else { return }
         
@@ -70,8 +71,6 @@ extension ViewController {
         trashContainerView.leftAnchor.constraint(equalTo: view.leftAnchor,
                                                  constant: 20).isActive = true
         trashContainerView.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        
-        setupImageView()
         
         guard let currentImageView = currentImageView else { return }
         
@@ -180,6 +179,7 @@ extension ViewController {
     
     private func setupImageView() {
         currentImageView = UIImageView()
+        currentImageView?.contentMode = .scaleAspectFill
         currentImageView?.layer.cornerRadius = 20
         currentImageView?.layer.masksToBounds = true
         currentImageView?.isUserInteractionEnabled = true
