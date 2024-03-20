@@ -5,11 +5,12 @@
 //  Created by Maksym on 19.03.2024.
 //
 
-import Foundation
+import Combine
 
-class PhotoPresenter {
+final class PhotoPresenter {
     private weak var view: PhotoView?
     private let photoManager: PhotoManager
+    private var cancellables: Set<AnyCancellable> = []
     
     init(view: PhotoView, photoManager: PhotoManager) {
         self.view = view
@@ -17,9 +18,18 @@ class PhotoPresenter {
     }
     
     func fetchLatestPhoto() {
-        if let latestPhoto = photoManager.fetchLatestPhoto() {
-            view?.display(photo: latestPhoto)
-        }
+        photoManager.fetchLatestPhoto()
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .failure(let error):
+                    print("Error fetching latest photo: \(error.localizedDescription)")
+                case .finished:
+                    break
+                }
+            }, receiveValue: { [weak self] photo in
+                self?.view?.display(photo: photo)
+            })
+            .store(in: &cancellables)
     }
     
     func deletePhoto(_ photo: Photo) {
