@@ -41,7 +41,13 @@ extension ViewController: PhotoView {
         trashViewCounter?.text = String(counterValue)
     }
     
-    func display(photo: Photo) {
+    func display(photo: Photo?) {
+        guard let photo else {
+            currentImageView?.image = nil
+            
+            return
+        }
+        
         currentImageView?.image = photo.image
     }
 }
@@ -197,7 +203,7 @@ extension ViewController {
         var movePhotoToTrashButtonConfig = UIButton.Configuration.gray()
         movePhotoToTrashButtonConfig.cornerStyle = .dynamic
         movePhotoToTrashButtonConfig.image = UIImage(systemName: "trash",
-                                           withConfiguration: UIImage.SymbolConfiguration(scale: .large))
+                                                     withConfiguration: UIImage.SymbolConfiguration(scale: .large))
         movePhotoToTrashButtonConfig.imagePadding = 8.0
         movePhotoToTrashButtonConfig.baseBackgroundColor = #colorLiteral(red: 0.9882, green: 0.1412, blue: 0.0392, alpha: 1)
         movePhotoToTrashButtonConfig.baseForegroundColor = .white
@@ -211,14 +217,14 @@ extension ViewController {
         movePhotoToTrashButton?.heightAnchor.constraint(equalToConstant: 60).isActive = true
         
         movePhotoToTrashButton?.addTarget(self, action: #selector(movePhotoToTrashPressed(_:)),
-                                      for: .touchUpInside)
+                                          for: .touchUpInside)
         
         showNextPhotoButton = UIButton()
         
         var config = UIButton.Configuration.gray()
         config.cornerStyle = .dynamic
         config.image = UIImage(systemName: "checkmark",
-                                            withConfiguration: UIImage.SymbolConfiguration(scale: .large))
+                               withConfiguration: UIImage.SymbolConfiguration(scale: .large))
         config.imagePadding = 8.0
         config.baseBackgroundColor = #colorLiteral(red: 0.4, green: 0.7765, blue: 0.7137, alpha: 1)
         config.baseForegroundColor = .white
@@ -233,7 +239,7 @@ extension ViewController {
         showNextPhotoButton?.configuration = config
         
         showNextPhotoButton?.addTarget(self, action: #selector(showNextPhotoPressed(_:)),
-                                      for: .touchUpInside)
+                                       for: .touchUpInside)
     }
     
     private func setupActionButtonsContainerView() {
@@ -267,8 +273,9 @@ extension ViewController {
     }
     
     @objc private func movePhotoToTrashPressed(_ sender: Any) {
-      //  counterValue += 1
-        
-        presenter?.deletePhoto()
+        if let presenter, presenter.isPhotosLeft {
+            counterValue += 1
+            presenter.deletePhoto()
+        }
     }
 }
