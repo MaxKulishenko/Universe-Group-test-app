@@ -6,11 +6,13 @@
 //
 
 import Combine
+import Foundation
 
 final class PhotoPresenter {
     private weak var view: PhotoView?
     private let photoManager: PhotoManager
     private var cancellables: Set<AnyCancellable> = []
+    private var latestFetchedPhoto: Photo?
     
     init(view: PhotoView, photoManager: PhotoManager) {
         self.view = view
@@ -18,7 +20,7 @@ final class PhotoPresenter {
     }
     
     func fetchLatestPhoto() {
-        photoManager.fetchLatestPhoto()
+        photoManager.fetchNextLatestPhoto(before: nil)
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .failure(let error):
@@ -27,6 +29,7 @@ final class PhotoPresenter {
                     break
                 }
             }, receiveValue: { [weak self] photo in
+                self?.latestFetchedPhoto = photo
                 self?.view?.display(photo: photo)
             })
             .store(in: &cancellables)
@@ -37,7 +40,21 @@ final class PhotoPresenter {
         fetchLatestPhoto()
     }
     
-    func savePhoto() {
-        fetchLatestPhoto()
+    func fetchNextLatestPhoto() {
+        guard let latestFetchedPhoto = latestFetchedPhoto else { return }
+        
+        photoManager.fetchNextLatestPhoto(before: latestFetchedPhoto.date)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .failure(let error):
+                    print("Error fetching latest photo: \(error.localizedDescription)")
+                case .finished:
+                    break
+                }
+            }, receiveValue: { [weak self] photo in
+                self?.latestFetchedPhoto = photo
+                self?.view?.display(photo: photo)
+            })
+            .store(in: &cancellables)
     }
 }
