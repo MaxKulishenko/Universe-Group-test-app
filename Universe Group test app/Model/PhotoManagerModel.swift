@@ -10,7 +10,7 @@ import Photos
 import Combine
 
 final class PhotoManager {
-    func fetchLatestPhoto() -> AnyPublisher<Photo, Error> {
+    func fetchNextLatestPhoto(before date: Date? = nil) -> AnyPublisher<Photo, Error> {
         return Future<Photo, Error> { promise in
             PHPhotoLibrary.requestAuthorization { status in
                 guard status == .authorized else {
@@ -20,14 +20,18 @@ final class PhotoManager {
                 }
                 
                 let fetchOptions = PHFetchOptions()
-                fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-                fetchOptions.fetchLimit = 1
+                fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
+                
+                if let date = date {
+                    fetchOptions.predicate = NSPredicate(format: "creationDate < %@", date as CVarArg)
+                } else {
+                    fetchOptions.fetchLimit = 1
+                }
                 
                 let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
                 
-                guard let latestAsset = fetchResult.firstObject else {
+                guard let nextLatestAsset = fetchResult.lastObject else {
                     promise(.failure(PhotoError.noPhotosFound))
-                    
                     return
                 }
                 
@@ -35,14 +39,16 @@ final class PhotoManager {
                 requestOptions.isSynchronous = false
                 requestOptions.deliveryMode = .highQualityFormat
                 
-                PHImageManager.default().requestImage(for: latestAsset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: requestOptions) { image, _ in
+                PHImageManager.default().requestImage(for: nextLatestAsset,
+                                                         targetSize: PHImageManagerMaximumSize,
+                                                         contentMode: .aspectFit,
+                                                         options: requestOptions) { image, _ in
                     guard let image = image else {
                         promise(.failure(PhotoError.imageFetchFailed))
-                        
                         return
                     }
                     
-                    let photo = Photo(image: image, date: latestAsset.creationDate ?? Date())
+                    let photo = Photo(image: image, date: nextLatestAsset.creationDate ?? Date())
                     promise(.success(photo))
                 }
             }

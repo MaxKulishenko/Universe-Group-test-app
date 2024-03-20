@@ -11,8 +11,8 @@ final class ViewController: UIViewController {
     
     private var currentImageView: UIImageView?
     private var actionButtonsContainerView: UIStackView? = nil
-    private var deleteButton: UIButton? = nil
-    private var aproveButton: UIButton? = nil
+    private var movePhotoToTrashButton: UIButton? = nil
+    private var showNextPhotoButton: UIButton? = nil
     private var trashContainerView: UIStackView?
     private var trashViewCounter: UILabel?
     private var trashViewLabel: UILabel?
@@ -148,7 +148,6 @@ extension ViewController {
         config.attributedTitle = .init(attributedTitle)
         
         trashViewButton?.configuration = config
-        trashViewButton?.translatesAutoresizingMaskIntoConstraints = false
     }
     
     private func setupTrashContainerView() {
@@ -157,6 +156,7 @@ extension ViewController {
               let trashViewButton = trashViewButton else { return }
         
         trashViewLabel.contentMode = .scaleToFill
+        
         let containerView = UIStackView()
         containerView.backgroundColor = #colorLiteral(red: 0.1922, green: 0.2, blue: 0.3294, alpha: 1)
         containerView.layer.cornerRadius = 30
@@ -172,7 +172,8 @@ extension ViewController {
                                                    bottom: 20,
                                                    right: 20)
         containerView.isLayoutMarginsRelativeArrangement = true
-        trashViewButton.widthAnchor.constraint(equalTo: containerView.widthAnchor , multiplier: 0.5).isActive = true
+        trashViewButton.widthAnchor.constraint(equalTo: containerView.widthAnchor,
+                                               multiplier: 0.5).isActive = true
         
         trashContainerView = containerView
     }
@@ -181,55 +182,55 @@ extension ViewController {
         currentImageView = UIImageView()
         currentImageView?.layer.cornerRadius = 20
         currentImageView?.layer.masksToBounds = true
+        currentImageView?.isUserInteractionEnabled = true
     }
     
     private func setupButtons() {
-        deleteButton = UIButton()
+        movePhotoToTrashButton = UIButton()
         
-        var deleteButtonConfig = UIButton.Configuration.gray()
-        deleteButtonConfig.cornerStyle = .dynamic
-        deleteButtonConfig.image = UIImage(systemName: "trash",
+        var movePhotoToTrashButtonConfig = UIButton.Configuration.gray()
+        movePhotoToTrashButtonConfig.cornerStyle = .dynamic
+        movePhotoToTrashButtonConfig.image = UIImage(systemName: "trash",
                                            withConfiguration: UIImage.SymbolConfiguration(scale: .large))
-        deleteButtonConfig.imagePadding = 8.0
-        deleteButtonConfig.baseBackgroundColor = #colorLiteral(red: 0.9882, green: 0.1412, blue: 0.0392, alpha: 1)
-        deleteButtonConfig.baseForegroundColor = .white
+        movePhotoToTrashButtonConfig.imagePadding = 8.0
+        movePhotoToTrashButtonConfig.baseBackgroundColor = #colorLiteral(red: 0.9882, green: 0.1412, blue: 0.0392, alpha: 1)
+        movePhotoToTrashButtonConfig.baseForegroundColor = .white
         
-        deleteButton?.configuration = deleteButtonConfig
+        movePhotoToTrashButton?.configuration = movePhotoToTrashButtonConfig
         
-        deleteButton?.layer.cornerRadius = 30
-        deleteButton?.layer.masksToBounds = true
-        deleteButton?.translatesAutoresizingMaskIntoConstraints = false
-        deleteButton?.widthAnchor.constraint(equalToConstant: 60).isActive = true
-        deleteButton?.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        movePhotoToTrashButton?.layer.cornerRadius = 30
+        movePhotoToTrashButton?.layer.masksToBounds = true
+        movePhotoToTrashButton?.translatesAutoresizingMaskIntoConstraints = false
+        movePhotoToTrashButton?.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        movePhotoToTrashButton?.heightAnchor.constraint(equalToConstant: 60).isActive = true
         
-        aproveButton = UIButton()
+        showNextPhotoButton = UIButton()
         
-        guard let aproveButton = aproveButton else { return }
-        
-        var aprroveButtonConfig = UIButton.Configuration.gray()
-        aprroveButtonConfig.cornerStyle = .dynamic
-        aprroveButtonConfig.image = UIImage(systemName: "checkmark",
+        var config = UIButton.Configuration.gray()
+        config.cornerStyle = .dynamic
+        config.image = UIImage(systemName: "checkmark",
                                             withConfiguration: UIImage.SymbolConfiguration(scale: .large))
-        // trashButtonConfig.imagePlacement = .
-        aprroveButtonConfig.imagePadding = 8.0
-        //aprroveButtonConfig.title = "Empty Trash"
-        aprroveButtonConfig.baseBackgroundColor = #colorLiteral(red: 0.4, green: 0.7765, blue: 0.7137, alpha: 1)
-        aprroveButtonConfig.baseForegroundColor = .white
-        aprroveButtonConfig.buttonSize = .large
+        config.imagePadding = 8.0
+        config.baseBackgroundColor = #colorLiteral(red: 0.4, green: 0.7765, blue: 0.7137, alpha: 1)
+        config.baseForegroundColor = .white
+        config.buttonSize = .large
         
-        aproveButton.configuration = aprroveButtonConfig
+        showNextPhotoButton?.layer.cornerRadius = 30
+        showNextPhotoButton?.layer.masksToBounds = true
+        showNextPhotoButton?.translatesAutoresizingMaskIntoConstraints = false
+        showNextPhotoButton?.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        showNextPhotoButton?.heightAnchor.constraint(equalToConstant: 60).isActive = true
         
-        aproveButton.layer.cornerRadius = 30
-        aproveButton.layer.masksToBounds = true
-        aproveButton.translatesAutoresizingMaskIntoConstraints = false
-        aproveButton.widthAnchor.constraint(equalToConstant: 60).isActive = true
-        aproveButton.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        showNextPhotoButton?.configuration = config
         
+        showNextPhotoButton?.addTarget(self, action: #selector(showNextPhotoPressed(_:)),
+                                      for: .touchUpInside)
     }
     
     private func setupActionButtonsContainerView() {
-        guard let deleteButton = deleteButton,
-              let approveButton = aproveButton else { return }
+        guard let movePhotoToTrashButton = movePhotoToTrashButton,
+              let showNextPhotoButton = showNextPhotoButton else { return }
+        
         actionButtonsContainerView = UIStackView()
         actionButtonsContainerView?.layer.cornerRadius = 20
         actionButtonsContainerView?.axis = .horizontal
@@ -241,13 +242,18 @@ extension ViewController {
                                                                  right: 50)
         actionButtonsContainerView?.isLayoutMarginsRelativeArrangement = true
         
-        actionButtonsContainerView?.addArrangedSubview(deleteButton)
-        actionButtonsContainerView?.addArrangedSubview(approveButton)
+        actionButtonsContainerView?.addArrangedSubview(movePhotoToTrashButton)
+        actionButtonsContainerView?.addArrangedSubview(showNextPhotoButton)
     }
     
     private func setupWrapperView() {
         wrapperView = UIView()
-        wrapperView?.alpha = 1
         wrapperView?.layer.cornerRadius = 20
+    }
+}
+
+extension ViewController {
+    @objc private func showNextPhotoPressed(_ sender: Any) {
+        presenter?.fetchNextLatestPhoto()
     }
 }
