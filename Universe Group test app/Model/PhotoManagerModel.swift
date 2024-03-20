@@ -20,18 +20,19 @@ final class PhotoManager {
                 }
                 
                 let fetchOptions = PHFetchOptions()
-                fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
+                fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate",
+                                                                 ascending: true)]
                 
                 if let date = date {
-                    fetchOptions.predicate = NSPredicate(format: "creationDate < %@", date as CVarArg)
-                } else {
-                    fetchOptions.fetchLimit = 1
+                    fetchOptions.predicate = NSPredicate(format: "creationDate < %@",
+                                                         date as CVarArg)
                 }
                 
                 let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
                 
                 guard let nextLatestAsset = fetchResult.lastObject else {
                     promise(.failure(PhotoError.noPhotosFound))
+                    
                     return
                 }
                 
@@ -45,10 +46,12 @@ final class PhotoManager {
                                                          options: requestOptions) { image, _ in
                     guard let image = image else {
                         promise(.failure(PhotoError.imageFetchFailed))
+                        
                         return
                     }
                     
-                    let photo = Photo(image: image, date: nextLatestAsset.creationDate ?? Date())
+                    let photo = Photo(image: image,
+                                      date: nextLatestAsset.creationDate ?? Date())
                     promise(.success(photo))
                 }
             }
