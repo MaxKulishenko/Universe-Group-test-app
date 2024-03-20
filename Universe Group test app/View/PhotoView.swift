@@ -8,6 +8,6 @@
 import Foundation
 
 protocol PhotoView: AnyObject {
-    func display(photo: Photo)
+    func display(photo: Photo?)
     func updateTrashCounter()
 }

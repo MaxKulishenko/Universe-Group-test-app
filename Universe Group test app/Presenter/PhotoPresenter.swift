@@ -13,6 +13,7 @@ final class PhotoPresenter {
     private let photoManager: PhotoManager
     private var cancellables: Set<AnyCancellable> = []
     private var latestFetchedPhoto: Photo?
+    public var isPhotosLeft: Bool = false
     
     init(view: PhotoView, photoManager: PhotoManager) {
         self.view = view
@@ -25,10 +26,12 @@ final class PhotoPresenter {
                 switch completion {
                 case .failure(let error):
                     print("Error fetching latest photo: \(error.localizedDescription)")
+                    self.isPhotosLeft = false
                 case .finished:
                     break
                 }
             }, receiveValue: { [weak self] photo in
+                self?.isPhotosLeft = true
                 self?.latestFetchedPhoto = photo
                 self?.view?.display(photo: photo)
             })
@@ -52,7 +55,7 @@ final class PhotoPresenter {
                         
                         switch completion {
                         case .finished:
-                            DispatchQueue.main.async {
+                            DispatchQueue.main.async { [weak self] in
                                 self?.increasePhotosInTrashCounter()
                                 self?.fetchNextLatestPhoto()
                             }
@@ -73,12 +76,17 @@ final class PhotoPresenter {
                 switch completion {
                 case .failure(let error):
                     print("Error fetching latest photo: \(error.localizedDescription)")
+                    self.isPhotosLeft = false
+                    DispatchQueue.main.async { [weak self] in
+                        self?.view?.display(photo: nil)
+                    }
                 case .finished:
                     break
                 }
             }, receiveValue: { [weak self] photo in
                 self?.latestFetchedPhoto = photo
                 self?.view?.display(photo: photo)
+                self?.isPhotosLeft = true
             })
             .store(in: &cancellables)
     }
