@@ -51,7 +51,8 @@ final class PhotoManager {
                     }
                     
                     let photo = Photo(image: image,
-                                      date: nextLatestAsset.creationDate ?? Date())
+                                      date: nextLatestAsset.creationDate ?? Date(),
+                                      localIdentifier: nextLatestAsset.localIdentifier)
                     promise(.success(photo))
                 }
             }
@@ -59,7 +60,20 @@ final class PhotoManager {
         .eraseToAnyPublisher()
     }
     
-    func deletePhoto(_ photo: Photo) {
+    func deletePhoto(_ photo: Photo) -> AnyPublisher<Bool, Error> {
+        return Future<Bool, Error> { promise in
+            PHPhotoLibrary.shared().performChanges {
+                let assets = PHAsset.fetchAssets(withLocalIdentifiers: [photo.localIdentifier], options: nil)
+                PHAssetChangeRequest.deleteAssets(assets)
+            } completionHandler: { success, error in
+                if let error = error {
+                    promise(.failure(error))
+                } else {
+                    promise(.success(success))
+                }
+            }
+        }
+        .eraseToAnyPublisher()
     }
     
     func emptyCart() {

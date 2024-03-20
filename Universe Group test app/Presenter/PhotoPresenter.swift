@@ -35,9 +35,34 @@ final class PhotoPresenter {
             .store(in: &cancellables)
     }
     
-    func deletePhoto(_ photo: Photo) {
-        photoManager.deletePhoto(photo)
-        fetchLatestPhoto()
+    func deletePhoto() {
+        photoManager.fetchNextLatestPhoto(before: nil)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .failure(let error):
+                    print("Error fetching latest photo: \(error.localizedDescription)")
+                case .finished:
+                    break
+                }
+            }, receiveValue: { photo in
+                guard let latestFetchedPhoto = self.latestFetchedPhoto else { return }
+                
+                self.photoManager.deletePhoto(latestFetchedPhoto)
+                    .sink { [ weak self] completion in
+                        
+                        switch completion {
+                        case .finished:
+                            DispatchQueue.main.async {
+                                self?.increasePhotosInTrashCounter()
+                                self?.fetchNextLatestPhoto()
+                            }
+                        case .failure(let error):
+                            print("Deletion failed: \(error.localizedDescription)")
+                        }
+                    } receiveValue: { _ in }
+                    .store(in: &self.cancellables )
+            })
+            .store(in: &cancellables)
     }
     
     func fetchNextLatestPhoto() {
@@ -56,5 +81,9 @@ final class PhotoPresenter {
                 self?.view?.display(photo: photo)
             })
             .store(in: &cancellables)
+    }
+    
+    func increasePhotosInTrashCounter() {
+        view?.updateTrashCounter()
     }
 }

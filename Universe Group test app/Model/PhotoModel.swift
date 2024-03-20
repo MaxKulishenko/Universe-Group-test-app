@@ -11,4 +11,5 @@ import UIKit
 struct Photo {
     var image: UIImage
     var date: Date
+    var localIdentifier: String
 }
