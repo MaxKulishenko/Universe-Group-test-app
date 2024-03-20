@@ -19,12 +19,18 @@ final class ViewController: UIViewController {
     private var trashViewButton: UIButton?
     private var wrapperView: UIView?
     
+    private var presenter: PhotoPresenter?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        presenter = PhotoPresenter(view: self, photoManager: PhotoManager())
         
         view.backgroundColor = #colorLiteral(red: 0.051, green: 0.0588, blue: 0.1137, alpha: 1)
         
         setupUI()
+        
+        presenter?.fetchLatestPhoto()
     }
 }
 
@@ -51,7 +57,7 @@ extension ViewController {
         setupButtons()
         setupActionButtonsContainerView()
         setupWrapperView()
-
+        
         guard let trashContainerView = trashContainerView else { return }
         
         view.addSubview(trashContainerView)
@@ -101,7 +107,7 @@ extension ViewController {
         actionButtonsContainerView.bottomAnchor.constraint(equalTo: wrapperView.bottomAnchor, constant: -30).isActive = true
         
     }
-
+    
     private func setupTrashViewCounter() {
         trashViewCounter = UILabel()
         trashViewCounter?.text = "0"
@@ -126,7 +132,7 @@ extension ViewController {
         var config = UIButton.Configuration.gray()
         config.cornerStyle = .large
         config.image = UIImage(systemName: "trash",
-              withConfiguration: UIImage.SymbolConfiguration(scale: .large))
+                               withConfiguration: UIImage.SymbolConfiguration(scale: .large))
         config.imagePlacement = .leading
         config.imagePadding = 8.0
         config.title = "Empty Trash"
@@ -140,7 +146,7 @@ extension ViewController {
         let attributedTitle = NSAttributedString(string: "Empty Trash",
                                                  attributes: attributes)
         config.attributedTitle = .init(attributedTitle)
-  
+        
         trashViewButton?.configuration = config
         trashViewButton?.translatesAutoresizingMaskIntoConstraints = false
     }
@@ -149,7 +155,7 @@ extension ViewController {
         guard let trashViewCounter = trashViewCounter,
               let trashViewLabel = trashViewLabel,
               let trashViewButton = trashViewButton else { return }
-
+        
         trashViewLabel.contentMode = .scaleToFill
         let containerView = UIStackView()
         containerView.backgroundColor = #colorLiteral(red: 0.1922, green: 0.2, blue: 0.3294, alpha: 1)
@@ -167,14 +173,12 @@ extension ViewController {
                                                    right: 20)
         containerView.isLayoutMarginsRelativeArrangement = true
         trashViewButton.widthAnchor.constraint(equalTo: containerView.widthAnchor , multiplier: 0.5).isActive = true
-
+        
         trashContainerView = containerView
     }
     
     private func setupImageView() {
         currentImageView = UIImageView()
-       // currentImageView?.backgroundColor = .white
-        currentImageView?.image = UIImage(named: "immage")
         currentImageView?.layer.cornerRadius = 20
         currentImageView?.layer.masksToBounds = true
     }
@@ -185,7 +189,7 @@ extension ViewController {
         var deleteButtonConfig = UIButton.Configuration.gray()
         deleteButtonConfig.cornerStyle = .dynamic
         deleteButtonConfig.image = UIImage(systemName: "trash",
-              withConfiguration: UIImage.SymbolConfiguration(scale: .large))
+                                           withConfiguration: UIImage.SymbolConfiguration(scale: .large))
         deleteButtonConfig.imagePadding = 8.0
         deleteButtonConfig.baseBackgroundColor = #colorLiteral(red: 0.9882, green: 0.1412, blue: 0.0392, alpha: 1)
         deleteButtonConfig.baseForegroundColor = .white
@@ -205,8 +209,8 @@ extension ViewController {
         var aprroveButtonConfig = UIButton.Configuration.gray()
         aprroveButtonConfig.cornerStyle = .dynamic
         aprroveButtonConfig.image = UIImage(systemName: "checkmark",
-              withConfiguration: UIImage.SymbolConfiguration(scale: .large))
-       // trashButtonConfig.imagePlacement = .
+                                            withConfiguration: UIImage.SymbolConfiguration(scale: .large))
+        // trashButtonConfig.imagePlacement = .
         aprroveButtonConfig.imagePadding = 8.0
         //aprroveButtonConfig.title = "Empty Trash"
         aprroveButtonConfig.baseBackgroundColor = #colorLiteral(red: 0.4, green: 0.7765, blue: 0.7137, alpha: 1)
@@ -227,16 +231,14 @@ extension ViewController {
         guard let deleteButton = deleteButton,
               let approveButton = aproveButton else { return }
         actionButtonsContainerView = UIStackView()
-        
-        //actionButtonsContainerView?.backgroundColor = .green
         actionButtonsContainerView?.layer.cornerRadius = 20
         actionButtonsContainerView?.axis = .horizontal
         actionButtonsContainerView?.alignment = .fill
         actionButtonsContainerView?.distribution = .equalSpacing
         actionButtonsContainerView?.layoutMargins = UIEdgeInsets(top: 0,
-                                                   left: 50,
-                                                   bottom: 0,
-                                                   right: 50)
+                                                                 left: 50,
+                                                                 bottom: 0,
+                                                                 right: 50)
         actionButtonsContainerView?.isLayoutMarginsRelativeArrangement = true
         
         actionButtonsContainerView?.addArrangedSubview(deleteButton)
