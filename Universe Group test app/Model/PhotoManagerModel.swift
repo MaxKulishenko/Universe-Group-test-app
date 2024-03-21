@@ -10,7 +10,7 @@ import Photos
 import Combine
 
 final class PhotoManager {
-    private var trashBin: [Photo] = []
+     var trashBin: [Photo] = []
     
     func fetchNextLatestPhoto(before date: Date? = nil) -> AnyPublisher<Photo, Error> {
         return Future<Photo, Error> { promise in

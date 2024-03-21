@@ -80,20 +80,24 @@ final class PhotoPresenter {
     
     func decreasePhotosCounterInTrasView() {
         photoManager.emptyCart()
-            .sink(receiveCompletion: { [weak self] completion in
+            .sink(receiveCompletion: {  completion in
                 switch completion {
                 case .failure(let error):
                     print("Error deleting photos: \(error.localizedDescription)")
-                    
+                   
+                    if !self.photoManager.trashBin.isEmpty {
                     DispatchQueue.main.async { [weak self] in
                         self?.view?.display(photo: self?.latestFetchedPhoto)
                     }
+                    }
                 case .finished:
-                    DispatchQueue.main.async { [weak self] in
-                        self?.view?.display(photo: nil)
+                    if self.photoManager.trashBin.isEmpty {
+                        DispatchQueue.main.async { [weak self] in
+                            self?.view?.display(photo: nil)
+                        }
                     }
                 }
-            }, receiveValue: {[weak self] photo in
+            }, receiveValue: { [weak self] _ in
                 DispatchQueue.main.async { [weak self] in
                     self?.view?.didTapEmptyTrash()
                     self?.view?.updateTrashCounter()
