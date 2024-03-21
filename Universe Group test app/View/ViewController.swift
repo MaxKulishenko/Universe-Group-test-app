@@ -37,24 +37,22 @@ final class ViewController: UIViewController {
 }
 
 extension ViewController: PhotoView {
+    func didTapEmptyTrash() {
+        counterValue = 0
+    }
+    
     func updateTrashCounter() {
         trashViewCounter?.text = String(counterValue)
     }
     
     func display(photo: Photo?) {
-        guard let photo else {
+        guard let photo = photo else {
             currentImageView?.image = nil
             
             return
         }
         
         currentImageView?.image = photo.image
-    }
-}
-
-extension ViewController: EmptyCartView {
-    func didTapEmptyTrash() {
-        return  //
     }
 }
 
@@ -159,6 +157,9 @@ extension ViewController {
         config.attributedTitle = .init(attributedTitle)
         
         trashViewButton?.configuration = config
+        trashViewButton?.addTarget(self,
+                                   action: #selector(emptyTrashButtonPressed(_:)),
+                                   for: .touchUpInside)
     }
     
     private func setupTrashContainerView() {
@@ -273,9 +274,13 @@ extension ViewController {
     }
     
     @objc private func movePhotoToTrashPressed(_ sender: Any) {
-        if let presenter, presenter.isPhotosLeft {
+        if let presenter = presenter, presenter.isPhotosLeft {
             counterValue += 1
             presenter.deletePhoto()
         }
+    }
+    
+    @objc private func emptyTrashButtonPressed(_ sender: Any) {
+        presenter?.decreasePhotosCounterInTrasView()
     }
 }

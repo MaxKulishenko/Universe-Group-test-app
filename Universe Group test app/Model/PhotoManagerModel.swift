@@ -10,6 +10,8 @@ import Photos
 import Combine
 
 final class PhotoManager {
+    private var trashBin: [Photo] = []
+    
     func fetchNextLatestPhoto(before date: Date? = nil) -> AnyPublisher<Photo, Error> {
         return Future<Photo, Error> { promise in
             PHPhotoLibrary.requestAuthorization { status in
@@ -61,9 +63,25 @@ final class PhotoManager {
     }
     
     func deletePhoto(_ photo: Photo) -> AnyPublisher<Bool, Error> {
+        return Future<Bool, Error> { [weak self] promise in
+            // Move photo to trash bin
+            self?.trashBin.append(photo)
+            promise(.success(true))
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    func emptyCart() -> AnyPublisher<Bool, Error> {
         return Future<Bool, Error> { promise in
+            if self.trashBin.isEmpty {
+                promise(.failure(PhotoError.noPhotosFound))
+            }
+            
+            let localIdentifiers = self.trashBin.map { $0.localIdentifier }
+            
             PHPhotoLibrary.shared().performChanges {
-                let assets = PHAsset.fetchAssets(withLocalIdentifiers: [photo.localIdentifier], options: nil)
+                let assets = PHAsset.fetchAssets(withLocalIdentifiers: localIdentifiers,
+                                                 options: nil)
                 PHAssetChangeRequest.deleteAssets(assets)
             } completionHandler: { success, error in
                 if let error = error {
@@ -74,9 +92,6 @@ final class PhotoManager {
             }
         }
         .eraseToAnyPublisher()
-    }
-    
-    func emptyCart() {
     }
 }
 

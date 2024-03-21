@@ -39,32 +39,19 @@ final class PhotoPresenter {
     }
     
     func deletePhoto() {
-        photoManager.fetchNextLatestPhoto(before: nil)
-            .sink(receiveCompletion: { completion in
+        guard let photo = latestFetchedPhoto else { return }
+        photoManager.deletePhoto(photo)
+            .sink(receiveCompletion: { [weak self] completion in
                 switch completion {
-                case .failure(let error):
-                    print("Error fetching latest photo: \(error.localizedDescription)")
                 case .finished:
-                    break
+                    DispatchQueue.main.async {
+                        self?.view?.updateTrashCounter()
+                    }
+                    self?.fetchNextLatestPhoto()
+                case .failure(let error):
+                    print("Error deleting photo: \(error.localizedDescription)")
                 }
-            }, receiveValue: { photo in
-                guard let latestFetchedPhoto = self.latestFetchedPhoto else { return }
-                
-                self.photoManager.deletePhoto(latestFetchedPhoto)
-                    .sink { [ weak self] completion in
-                        
-                        switch completion {
-                        case .finished:
-                            DispatchQueue.main.async { [weak self] in
-                                self?.increasePhotosInTrashCounter()
-                                self?.fetchNextLatestPhoto()
-                            }
-                        case .failure(let error):
-                            print("Deletion failed: \(error.localizedDescription)")
-                        }
-                    } receiveValue: { _ in }
-                    .store(in: &self.cancellables )
-            })
+            }, receiveValue: { _ in })
             .store(in: &cancellables)
     }
     
@@ -91,7 +78,27 @@ final class PhotoPresenter {
             .store(in: &cancellables)
     }
     
-    func increasePhotosInTrashCounter() {
-        view?.updateTrashCounter()
+    func decreasePhotosCounterInTrasView() {
+        photoManager.emptyCart()
+            .sink(receiveCompletion: { [weak self] completion in
+                switch completion {
+                case .failure(let error):
+                    print("Error deleting photos: \(error.localizedDescription)")
+                    
+                    DispatchQueue.main.async { [weak self] in
+                        self?.view?.display(photo: self?.latestFetchedPhoto)
+                    }
+                case .finished:
+                    DispatchQueue.main.async { [weak self] in
+                        self?.view?.display(photo: nil)
+                    }
+                }
+            }, receiveValue: {[weak self] photo in
+                DispatchQueue.main.async { [weak self] in
+                    self?.view?.didTapEmptyTrash()
+                    self?.view?.updateTrashCounter()
+                }
+            })
+            .store(in: &cancellables)
     }
 }
